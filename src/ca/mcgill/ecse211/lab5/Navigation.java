@@ -5,16 +5,16 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /**
  * this class is used for navigating the robot to a specific point on the grid (coordinates in cm)
- * @author Group 13
+ * @author Team12
  *
  */
 public class Navigation {
 	
-	  private static final int FORWARD_SPEED = 200; 
-	  private static final int ROTATE_SPEED = 100;
-	  private static final double WHEEL_RAD = 2.13; 
-	  private static final double TRACK = 14.5;
-	  
+	  private static final int FORWARD_SPEED = Lab5.MOVE_SPEED; 
+	  private static final int ROTATE_SPEED = Lab5.ROTATE_SPEED;
+	  private static final double WHEEL_RAD = Lab5.WHEEL_RAD;
+	  private static final double TRACK = Lab5.TRACK;
+	  private static final double TILE_SIZE = Lab5.TILE_SIZE;
 	
 	/**
 	 * This method is used to drive the robot to the destination point which is
@@ -36,9 +36,11 @@ public class Navigation {
 		double currentT = odometer.getXYT()[2]; //get the current direction in degrees
 		
 		//calculate the moving distance and turning angle
-		double dDistance = Math.sqrt(Math.pow((x - currentX), 2) + Math.pow((y - currentY), 2));
+		double x1 = x*TILE_SIZE; //waypoint x coordinate in cm
+		double y1 = y*TILE_SIZE; //waypoint y coordinate in cm
+		double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
 		
-		double dAngle = getDAngle(x, y, currentX, currentY);
+		double dAngle = getDAngle(x1, y1, currentX, currentY);
 
 		turnTo(dAngle, currentT, leftMotor, rightMotor); //turn the robot to the direction of the new way point
 		
@@ -48,11 +50,9 @@ public class Navigation {
 		      motor.stop();
 		      motor.setAcceleration(2000);
 		    }
-		// Sleep for 2 seconds
 	    try {
-	      Thread.sleep(2000);
+	      Thread.sleep(1000);
 	    } catch (InterruptedException e) {
-	      // There is nothing to be done here
 	    }
 
 	    leftMotor.setSpeed(FORWARD_SPEED);
@@ -76,9 +76,8 @@ public class Navigation {
 		      motor.stop();
 		      motor.setAcceleration(2000);
 		    }
-		// Sleep for 2 seconds
 	    try {
-	      Thread.sleep(2000);
+	      Thread.sleep(1000);
 	    } catch (InterruptedException e) {
 	      // There is nothing to be done here
 	    }
@@ -146,5 +145,7 @@ public class Navigation {
 	 */
 	public static int convertAngle(double radius, double width, double angle) {
 	    return convertDistance(radius, Math.PI * width * angle / 360.0);
+	    
+	    
 	  }
 }
