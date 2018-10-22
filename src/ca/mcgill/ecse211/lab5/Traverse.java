@@ -25,13 +25,14 @@ public class Traverse {
 	private static final double TRACK = Lab5.TRACK;
 	private static final double TILE_SIZE = Lab5.TILE_SIZE;
 	private static final int DETECT_DISTANCE = Lab5.DETECT_DISTANCE;
+	private static int ringCount = 0;
 	
 	private static SampleProvider usDistanceR = Lab5.usDistanceR;
 	private static final float[] usDataR = Lab5.usDataR;
 	private static SampleProvider usDistance = Lab5.usDistance;
 	private static final float[] usData = Lab5.usData;
 	private static final EV3LargeRegulatedMotor leftMotor = Lab5.leftMotor;
-	private static final EV3LargeRegulatedMotor rightMotor = Lab5.leftMotor;
+	private static final EV3LargeRegulatedMotor rightMotor = Lab5.rightMotor;
 	
 	private static boolean foundTargetRing;//whether the target ring is found 
 	
@@ -81,6 +82,7 @@ public class Traverse {
 	} 
 	
 	public static void detectTill(double x, double y, Odometer odometer) {
+		System.out.println("start detectTill");
 		double currentX = odometer.getXYT()[0]; //get the current x position in cm
 		double currentY = odometer.getXYT()[1]; //get the current y position in cm
 		double currentT = odometer.getXYT()[2]; //get the current direction in degrees
@@ -88,10 +90,12 @@ public class Traverse {
 		//calculate the moving distance and turning angle
 		double x1 = x*TILE_SIZE; //way point x coordinate in cm
 		double y1 = y*TILE_SIZE; //way point y coordinate in cm
-		double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
+//		double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
 		double dAngle = Navigation.getDAngle(x1, y1, currentX, currentY); //get the angle to turn
-		Navigation.turnTo(dAngle, currentT, leftMotor, rightMotor); //turn the robot to the direction of the new waypoint
+		Navigation.turnTo(dAngle, currentT, leftMotor, rightMotor); //turn the robot to the direction of the new way point
+		System.out.println("turn robot to direction of waypoint");
 		//reset the motor
+
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
 		      motor.stop();
 		      motor.setAcceleration(3000);
@@ -101,18 +105,33 @@ public class Traverse {
 	    } catch (InterruptedException e) {}
 	    
 	    //move the robot to the way point
-	    leftMotor.setSpeed(MOVE_SPEED);
-	    rightMotor.setSpeed(MOVE_SPEED);
-
-	    leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);
-	    rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);		    
+	    leftMotor.setSpeed(ROTATE_SPEED);
+	    rightMotor.setSpeed(ROTATE_SPEED);
+	    System.out.println("set speed to " + ROTATE_SPEED);
+	    
+//	    leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);  
+//	    rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);	  
+//	    System.out.println("rotate wheels to go distance " + dDistance);
 	    boolean foundRing = false;
 	    while(foundRing == false) {
-
+	    	double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
+	    	leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);  
+		    rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);	  
+		    //System.out.println("rotate wheels to go distance " + dDistance);
 			usDistanceR.fetchSample(usDataR, 0);
 			int distance = (int)(usDataR[0]*100.0);
+			System.out.println(distance);
+			if(distance < DETECT_DISTANCE) {
+				ringCount++;
+			}
+			else {
+				ringCount = 0;
+			}
 			//turn and approach if detected
-			if(distance<DETECT_DISTANCE) {
+			if(ringCount > 5) {
+				System.out.println("..........................detect Ring");
+				Sound.beep();
+				Sound.beep();
 				foundRing = true;
 				detect(x, y, odometer);
 			}
@@ -149,7 +168,7 @@ public class Traverse {
 		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90), true);
 		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90), false);
 		
-		//record the obometer x y values at this found so we can return to it later 
+		//record the odometer x y values at this found so we can return to it later 
 		double xRecord = odometer.getXYT()[0];
 		double yRecord = odometer.getXYT()[1];
 		
@@ -174,6 +193,7 @@ public class Traverse {
 				int color = Color.color();
 				detected = true;
 				if (color == Lab5.TR) {
+					System.out.println("color matched");
 					Sound.beep();
 					Sound.beep();
 					foundTargetRing = true; //we have found the ring! this boolean will now terminated the biggest while loop in search()

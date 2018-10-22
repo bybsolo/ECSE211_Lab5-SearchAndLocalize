@@ -26,10 +26,10 @@ public class Lab5 {
 	//0,3,3,7,7 are defaults for report testing
 	public static final int SC = 0;
 	public static final int TR = 1;
-	public static final double LLx = 3;
-	public static final double LLy = 3;
-	public static final double URx = 7;
-	public static final double URy = 7;
+	public static final double LLx = 2;		//left lower x
+	public static final double LLy = 2;		//left lower y
+	public static final double URx = 7;		//upper right x
+	public static final double URy = 7;		//upper right y
 	
 	// The parameters for driving the robot
 	public static final double OFF_SET = 14.65; //this is the offset from the back line-detecting light sensor to the wheelbase
@@ -40,7 +40,7 @@ public class Lab5 {
 	public static final double WHEEL_RAD = 2.13; 
 	public static final double TRACK = 14.5;
 	public static final double TILE_SIZE = 30.48;
-	public static final int DETECT_DISTANCE = (int)(3*TILE_SIZE); //detection bandcenter for the right side ultrasonic sensor /// ahmed: you can modify this 
+	public static final int DETECT_DISTANCE = (int)(1.4*TILE_SIZE); //detection bandcenter for the right side ultrasonic sensor /// ahmed: you can modify this 
 	public static final int RING_BAND = 2; //detection bandcenter for moving lose up to the ring for color identification 
 	
 	public static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
@@ -96,8 +96,9 @@ public class Lab5 {
 				lcd.drawString("^ Color", 0, 1);
 				lcd.drawString("< Radius", 0,2);
 			    lcd.drawString("> Track", 0,3);
+			    lcd.drawString("US sampling", 0,4);
 				testChoice = Button.waitForAnyPress();
-			}while(testChoice!=Button.ID_UP && testChoice != Button.ID_LEFT && testChoice != Button.ID_RIGHT);
+			}while(testChoice!=Button.ID_UP && testChoice != Button.ID_LEFT && testChoice != Button.ID_RIGHT && testChoice != Button.ID_DOWN);
 			if(testChoice==Button.ID_LEFT) {
 				//initiate the wheel radius tuning 
 				lcd.clear();
@@ -126,6 +127,15 @@ public class Lab5 {
 					}
 				}).start();
 			}
+			if(testChoice==Button.ID_DOWN) {
+				System.out.println("press down");
+				lcd.clear();
+				(new Thread() {
+					public void run() {
+						Tester.usSample();
+					}
+				}).start();
+			}
 		    while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		    System.exit(0);
 		}
@@ -149,18 +159,20 @@ public class Lab5 {
 			(new Thread() {
 				public void run() {
 					//The following are the routine performed for search and localize
-					
 					//perform the localization routine
-					UltrasonicLocalizer.risingEdge(usDistance, usData, odometer, leftMotor, rightMotor);
-					try {
-						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
-					} catch (OdometerExceptions e) {
-						e.printStackTrace();
-					}	
+					//UltrasonicLocalizer.risingEdge(usDistance, usData, odometer, leftMotor, rightMotor);
+//					try {
+//						System.out.println("....................light localization");
+//						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
+//					} catch (OdometerExceptions e) {
+//						e.printStackTrace();
+//					}	
 					//navigate to the lower left corner of the search area
+					odometer.setXYT(0.0, 0.0, 0.0);
 					Navigation.travelTo(Lab5.LLx, odometer.getXYT()[1]/TILE_SIZE, odometer, leftMotor, rightMotor); //travel to takes integer coordinates as doubles 
 					Navigation.travelTo(Lab5.LLx, Lab5.LLy, odometer, leftMotor, rightMotor);
 					Sound.beep();
+					System.out.println("......................start search");
 					Traverse.search(leftMotor, rightMotor, odometer);
 				}
 			}).start();

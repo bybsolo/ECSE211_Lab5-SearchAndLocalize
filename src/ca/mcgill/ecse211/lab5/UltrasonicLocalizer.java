@@ -173,6 +173,7 @@ public class UltrasonicLocalizer {
       	    	usDistance.fetchSample(usData, 0);
       		    distance = (int) (usData[0] * 100.0); 		    
       		    if(distance >= D) {
+      		    	System.out.println("detect 1st rising");
       		    	beta = odometer.getXYT()[2];
       		    	left_detected = true;
       		    }
@@ -206,6 +207,7 @@ public class UltrasonicLocalizer {
       	    	usDistance.fetchSample(usData, 0);
       		    distance = (int) (usData[0] * 100.0); 		    
       		    if(distance >= D) {
+      		    	System.out.println("detect 2nd rising");
       		    	alpha = odometer.getXYT()[2];
       		    	back_detected = true;
       		    }
