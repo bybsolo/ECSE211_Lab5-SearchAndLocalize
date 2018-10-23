@@ -60,6 +60,7 @@ public class Traverse {
 		//as long as the ring is not found, continue to the next corner and keep searching along the way
 		while(foundTargetRing ==false && i<4) {
 			detectTill(corners[i][0], corners[i][1], odometer);
+			System.out.println("reached corner");
 			i++;
 		}	
 		
@@ -128,34 +129,46 @@ public class Traverse {
 				ringCount = 0;
 			}
 			//turn and approach if detected
-			if(ringCount > 5) {
+			if(ringCount > 10) {
 				System.out.println("..........................detect Ring");
 				Sound.beep();
 				Sound.beep();
 				foundRing = true;
+				double correction = 0;
+				currentY= odometer.getXYT()[1];
+				currentT = odometer.getXYT()[2];
+				System.out.println("current Y is " + odometer.getXYT()[1]);
+				System.out.println("angle is " + odometer.getXYT()[2]);
+				//going up
+				if ((currentT >= 0 && currentT <= 10) ||(currentT >= 350 && currentT <= 360) ) {
+					correction = TILE_SIZE - (currentY % TILE_SIZE);						
+				}
+				//going right
+				else if ((currentT >= 80 && currentT <= 110)  ) {
+					correction = TILE_SIZE - (currentX % TILE_SIZE);	
+				}
+				//going down
+				else if ((currentT >= 170 && currentT <= 190)  ) {
+					correction = currentY % TILE_SIZE;
+				}
+				//going left
+				else  {
+					correction = currentX % TILE_SIZE;
+				} 
+				System.out.println("corrention is "+ correction);
+				leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, correction), true);  
+			    rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, correction), false);
+			    try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {}
 				detect(x, y, odometer);
+				
 			}
 		}
 	}
 	
 	public static void detect(double x, double y, Odometer odometer) {
-		//rotate back a bit, since there is a offset between the right side ultrasonic sensor and wheel sensor
-		// reset the motor
-		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-			motor.stop();
-			motor.setAcceleration(3000);
-		}
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {}
-		
-		leftMotor.setSpeed(ROTATE_SPEED);
-		rightMotor.setSpeed(ROTATE_SPEED);
-		leftMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, Lab5.OFF_SET_R), true);
-		rightMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, Lab5.OFF_SET_R), false);
-		
-		//turns 90degrees
-		// reset the motor
+
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
 			motor.stop();
 			motor.setAcceleration(3000);
@@ -181,15 +194,30 @@ public class Traverse {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {}
-		leftMotor.setSpeed(DETECT_SPEED); //change this sped if its too slow
-		rightMotor.setSpeed(DETECT_SPEED);
+		leftMotor.setSpeed(ROTATE_SPEED); //change this sped if its too slow
+		rightMotor.setSpeed(ROTATE_SPEED);
 		boolean detected = false;
 		while(detected == false) {
 			leftMotor.forward();
 			rightMotor.forward();
 			usDistance.fetchSample(usData, 0);
 			int dis = (int)(usData[0] * 100.0);
-			if(dis<Lab5.RING_BAND) {
+			System.out.println(dis);
+			if(dis < Lab5.RING_BAND) {
+				Sound.beep();
+				Sound.beep();
+				Sound.beep();
+				for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
+					motor.stop();
+					motor.setAcceleration(3000);
+				}
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {}
+				leftMotor.setSpeed(DETECT_SPEED);
+				rightMotor.setSpeed(DETECT_SPEED);
+				leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, Lab5.RING_BAND - 6), true);
+				rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, Lab5.RING_BAND - 6), false);
 				int color = Color.color();
 				detected = true;
 				if (color == Lab5.TR) {
@@ -217,6 +245,32 @@ public class Traverse {
 		rightMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn), false);
 		
 		//call detectTill again, so it can keep detecting more rings (recursive)
-		if (foundTargetRing == false) detectTill(x, y, odometer);
+		if (foundTargetRing == false) {
+			// reset the motor
+			for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
+				motor.stop();
+				motor.setAcceleration(3000);
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {}
+			leftMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90), true);
+			rightMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90), false);
+			// reset the motor
+			for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
+				motor.stop();
+				motor.setAcceleration(3000);
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {}
+			leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, TILE_SIZE - 5), true);
+			rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, TILE_SIZE - 5), false);
+			detectTill(x, y, odometer);
+		}		
+		else {
+			leftMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90), true);
+			rightMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90), false);
+		}
 	}
 }

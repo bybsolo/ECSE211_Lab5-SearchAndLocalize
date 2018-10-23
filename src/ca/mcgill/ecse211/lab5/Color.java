@@ -5,6 +5,9 @@ import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
+
+import java.util.concurrent.TimeUnit;
+
 import lejos.hardware.Sound;
 
 /**
@@ -56,6 +59,8 @@ public class Color {
 	public static final SampleProvider myColorSample = Lab5.myColorSample;
 	public static final float[] sampleColor = Lab5.sampleColor; // create an array for the sensor
 																				// readings
+	private static SampleProvider usDistance = Lab5.usDistance;
+	private static final float[] usData = Lab5.usData;
 	/**
 	 * calculates the euclidean distance in RGB space
 	 * @param rN normalized red reading
@@ -99,7 +104,7 @@ public class Color {
 	 * @param b blue reading
 	 * @return normalized reading 
 	 */
-	public static double bNormalize(double r, double g, double b) {
+	public static double bNormalize(float r, float g, float b) {
 		return b/(Math.sqrt(Math.pow(r,2)+Math.pow(g,2)+ Math.pow(b,2)));
 	}
 	
@@ -121,26 +126,43 @@ public class Color {
 		
 		//rank the distances and choose the color --smallest euclidean
 		double[] d = {dBlue, dGreen, dYellow, dOrange};
-		double smallest = 0;
+		double smallest = 10;
 		for (int i= 0; i<4; i++) {
-			if(d[i]<smallest) smallest = d[i];
+			if(i==0) smallest=d[i];
+			else if(d[i] < smallest) smallest = d[i];
 		}
+		System.out.println(r +", "+g + ", "+b);
+		System.out.println(dBlue+ ", "+dGreen+ ", "+ dYellow+", "+ dOrange);
 		//return the TR value
 		if(smallest == dBlue) return 1; //return blue
 		if(smallest == dGreen) return 2; //return green
 		if(smallest == dYellow) return 3; //return yellow
 		if(smallest == dOrange) return 4; //return orange
 		else return 0;
+		
 	}
 	
 	
-	public static void colorDemo() {
+	public static void colorDemo() throws InterruptedException {
 		///////this is the color demo class used for demo part 1/////////
 	    //this will be in a while loop 
-		//i forgot if its 10 or 5 trials
+		//i forgot if its5
 		//just used the sonic sensor
 		//when its smaller than the BAND, call color()
 		//color() returns a int, compare it with 1 (blue) 2 (green) ....
 		//and display the color
+		usDistance.fetchSample(usData, 0);
+		int distance = (int)(usData[0]*100.0);
+		int count =0;
+		while(count<5 && distance < 10) {
+			int color = Color.color();
+			Sound.beep();
+			if (color == 1) System.out.println("blue");
+			if (color == 2) System.out.println("green");
+			if (color == 3) System.out.println("yellow");
+			if (color == 4) System.out.println("orange");
+			count++;
+			TimeUnit.SECONDS.sleep(5);
+		}
 	}
 }

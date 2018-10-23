@@ -88,7 +88,7 @@ public class Tester {
 		rightMotor.rotate(-Navigation.convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, 360), false);
 	}
 	
-	public static void usSample() {
+	public static void usSample(Odometer odometer) {
 		System.out.println("start US sampling");
 		int ringCount = 0;
 		SampleProvider usDistanceR = Lab5.usDistanceR;
@@ -131,6 +131,13 @@ public class Tester {
 						Sound.beep();
 						Sound.beep();
 						foundRing = true;
+						double currentY = odometer.getXYT()[1];
+						double correction = Lab5.TILE_SIZE - (currentY % Lab5.TILE_SIZE);
+						System.out.println("current Y is "+currentY);
+						System.out.println("correction is "+correction);
+						
+						leftMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, correction), true);  
+					    rightMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, correction), true);
 						//detect(x, y, odometer);
 					}
 				};

@@ -26,8 +26,8 @@ public class Lab5 {
 	//0,3,3,7,7 are defaults for report testing
 	public static final int SC = 0;
 	public static final int TR = 1;
-	public static final double LLx = 2;		//left lower x
-	public static final double LLy = 2;		//left lower y
+	public static final double LLx = 3;		//left lower x
+	public static final double LLy = 3;		//left lower y
 	public static final double URx = 7;		//upper right x
 	public static final double URy = 7;		//upper right y
 	
@@ -40,8 +40,8 @@ public class Lab5 {
 	public static final double WHEEL_RAD = 2.13; 
 	public static final double TRACK = 14.5;
 	public static final double TILE_SIZE = 30.48;
-	public static final int DETECT_DISTANCE = (int)(1.4*TILE_SIZE); //detection bandcenter for the right side ultrasonic sensor /// ahmed: you can modify this 
-	public static final int RING_BAND = 2; //detection bandcenter for moving lose up to the ring for color identification 
+	public static final int DETECT_DISTANCE = (int)(2.5*TILE_SIZE); //detection bandcenter for the right side ultrasonic sensor /// ahmed: you can modify this 
+	public static final int RING_BAND = 20; //detection bandcenter for moving lose up to the ring for color identification 
 	
 	public static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	public static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
@@ -132,7 +132,7 @@ public class Lab5 {
 				lcd.clear();
 				(new Thread() {
 					public void run() {
-						Tester.usSample();
+						Tester.usSample(odometer);
 					}
 				}).start();
 			}
@@ -146,7 +146,12 @@ public class Lab5 {
 			lcd.clear();
 			(new Thread() {
 				public void run() {
-					Color.colorDemo();
+					try {
+						Color.colorDemo();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}).start();
 		}
@@ -161,14 +166,14 @@ public class Lab5 {
 					//The following are the routine performed for search and localize
 					//perform the localization routine
 					//UltrasonicLocalizer.risingEdge(usDistance, usData, odometer, leftMotor, rightMotor);
-//					try {
-//						System.out.println("....................light localization");
-//						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
-//					} catch (OdometerExceptions e) {
-//						e.printStackTrace();
-//					}	
+					try {
+						System.out.println("....................light localization");
+						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
+					} catch (OdometerExceptions e) {
+						e.printStackTrace();
+					}	
 					//navigate to the lower left corner of the search area
-					odometer.setXYT(0.0, 0.0, 0.0);
+					odometer.setXYT(TILE_SIZE, TILE_SIZE, 0.0); ///delete this later AHHHHHHHH
 					Navigation.travelTo(Lab5.LLx, odometer.getXYT()[1]/TILE_SIZE, odometer, leftMotor, rightMotor); //travel to takes integer coordinates as doubles 
 					Navigation.travelTo(Lab5.LLx, Lab5.LLy, odometer, leftMotor, rightMotor);
 					Sound.beep();
