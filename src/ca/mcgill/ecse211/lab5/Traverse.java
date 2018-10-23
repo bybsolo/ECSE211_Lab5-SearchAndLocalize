@@ -67,17 +67,18 @@ public class Traverse {
 		// if the robot is on the upper or right side of the search area
 		//////////CHANGE THE BOOLEAN CONDITIONS////////////
 		/////////////////////////////////////////////////////
-		if (odometer.getXYT()[2] == 90 || odometer.getXYT()[2] == 180) {
+		double currentT = odometer.getXYT()[2];
+		if ((currentT >= 80 && currentT <= 100) || (currentT >= 170 && currentT <= 190)) {
 			Navigation.travelTo(Lab5.URx, Lab5.URy, odometer, leftMotor, rightMotor);
 		}
 		// if the robot is on the left side of the search area
-		if (odometer.getXYT()[2] == 0) {
-			Navigation.travelTo(Lab5.URx, Lab5.LLy, odometer, leftMotor, rightMotor);
+		if ((currentT >= 0 && currentT <= 10) || (currentT >= 350 && currentT <= 360)) {
+			Navigation.travelTo(Lab5.LLx, Lab5.URy, odometer, leftMotor, rightMotor);
 			Navigation.travelTo(Lab5.URx, Lab5.URy, odometer, leftMotor, rightMotor);
 		}
 		// if the robot is on the lower side of the search area
-		if (odometer.getXYT()[2] == 270) {
-			Navigation.travelTo(Lab5.LLx, Lab5.URy, odometer, leftMotor, rightMotor);
+		if ((currentT >= 260) && currentT <= 280) {
+			Navigation.travelTo(Lab5.URx, Lab5.LLy, odometer, leftMotor, rightMotor);
 			Navigation.travelTo(Lab5.URx, Lab5.URy, odometer, leftMotor, rightMotor);
 		}
 	} 

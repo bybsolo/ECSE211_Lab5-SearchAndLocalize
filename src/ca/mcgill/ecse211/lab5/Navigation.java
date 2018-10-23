@@ -41,17 +41,27 @@ public class Navigation {
 		double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
 		
 		double dAngle = getDAngle(x1, y1, currentX, currentY);
-
+		
+		// reset the motor
+		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
+			motor.stop();
+			motor.setAcceleration(3000);
+		}
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+		}
+		
 		turnTo(dAngle, currentT, leftMotor, rightMotor); //turn the robot to the direction of the new way point
 		
 		//move the robot towards the new way point
 		//reset the motor
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
 		      motor.stop();
-		      motor.setAcceleration(2000);
+		      motor.setAcceleration(3000);
 		    }
 	    try {
-	      Thread.sleep(1000);
+	      Thread.sleep(500);
 	    } catch (InterruptedException e) {
 	    }
 
