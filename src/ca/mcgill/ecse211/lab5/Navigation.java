@@ -26,8 +26,7 @@ public class Navigation {
 	 * @param odometer the odometer object created in the main class
 	 * @param leftMotor the left motor of the robot 
 	 * @param rightmotor the right motor of the robot
-	 */
-	  	  
+	 */	  	  
 	public static void travelTo(double x, double y, Odometer odometer, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor) {
 		
 		//get the odometer readings to determine the action
@@ -75,7 +74,7 @@ public class Navigation {
 	}
 	
 	/**
-	 * 
+	 * This method returns the angle the robot needs to turn (the smallest angle) to the next point
 	 * @param dAngle the angle to turn towards
 	 * @param currentT the current direction
 	 * @param leftMotor the left motor
@@ -99,13 +98,6 @@ public class Navigation {
 	    double angle2 = (angle1>=0 ? -(360-(Math.abs(angle1))) : (360-(Math.abs(angle1))));
 	    double angle = (Math.abs(angle1) < Math.abs(angle2) ? angle1 : angle2); 
 	    
-	    if(angle>=80 && angle<=100) angle = 89;
-	    if(angle>=-10 && angle<=10) angle = 0;
-	    if(angle>=170 && angle<=190) angle = 180;
-	    if(angle>=-100 && angle<=-80) angle = -91;
-	    if(angle>=-190 && angle<=-170) angle = -180;
-	    if(angle>=350 && angle<=361) angle = 0;
-	    
 	    //start the motors and make the turn
 	    leftMotor.setSpeed(ROTATE_SPEED);
 	    rightMotor.setSpeed(ROTATE_SPEED);
@@ -116,7 +108,7 @@ public class Navigation {
 	}
 	
 	/**
-	 * 
+	 * This method returns the smallest angle needed to turn
 	 * @param x1 the x of way point
 	 * @param y1 the y of way point
 	 * @param xc the current x

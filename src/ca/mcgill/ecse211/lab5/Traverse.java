@@ -18,7 +18,7 @@ public class Traverse {
 	 * once it detects a ring it will turn, approach and then identify the color using the light sensor
 	 * after finding the desired ring, it will travel to the upper right corner
 	 */
-	private static final int DETECT_SPEED = Lab5.DETECT_SPEED;
+	private static final int DETECT_SPEED = Lab5.DETECT_SPEED; 
 	private static final int ROTATE_SPEED = Lab5.ROTATE_SPEED;
 	private static final int MOVE_SPEED = Lab5.MOVE_SPEED;
 	private static final double WHEEL_RAD = Lab5.WHEEL_RAD;
@@ -34,8 +34,16 @@ public class Traverse {
 	private static final EV3LargeRegulatedMotor leftMotor = Lab5.leftMotor;
 	private static final EV3LargeRegulatedMotor rightMotor = Lab5.rightMotor;
 	
-	private static boolean foundTargetRing;//whether the target ring is found 
+	private static boolean foundTargetRing;//return true when the target ring is found 
 	
+	/**
+	 * this method is used for searching the search area for the rings,
+	 * it is called in the main method, and will search for rings (including the target ring) while traversing around the 
+	 * search area perimeter
+	 * @param leftMotor the left motor of the robot
+	 * @param rightMotor the right motor
+	 * @param odometer the odometer used bu the robot
+	 */
 	public static void search(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, Odometer odometer) {
 		//the search routine ends with the robot returning back on the perimeter of the search area
 		
@@ -51,9 +59,10 @@ public class Traverse {
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
 		
+		//update thr odometer values based on the starting corner
 		if(Lab5.SC == 0 || Lab5.SC == 1) odometer.setXYT(Lab5.LLx*TILE_SIZE, Lab5.LLy*TILE_SIZE, 0);
 		if(Lab5.SC == 2 || Lab5.SC == 3) odometer.setXYT(Lab5.LLx*TILE_SIZE, Lab5.LLy*TILE_SIZE, 0);
-
+		//orient to the 0 axis
 		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, (0 - odometer.getXYT()[2])), true);
 		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, (0 - odometer.getXYT()[2])), false);
 		
@@ -68,9 +77,8 @@ public class Traverse {
 			i++;
 		}	
 		
+		//if the ring is found in the end/ the end of the perimeter (the starting point) is reached, travel to the upper right corner
 		// if the robot is on the upper or right side of the search area
-		//////////CHANGE THE BOOLEAN CONDITIONS////////////
-		/////////////////////////////////////////////////////
 		double currentT = odometer.getXYT()[2];
 		if ((currentT >= 80 && currentT <= 100) || (currentT >= 170 && currentT <= 190)) {
 			Navigation.travelTo(Lab5.URx, Lab5.URy, odometer, leftMotor, rightMotor);
@@ -87,6 +95,12 @@ public class Traverse {
 		}
 	} 
 	
+	/**
+	 * 
+	 * @param x the x coordinates (in unit tile-length) of the corner we are traveling to 
+	 * @param y the y coordinate  (in unit tile-length) of the corner we are traveling to 
+	 * @param odometer the odometer used
+	 */
 	public static void detectTill(double x, double y, Odometer odometer) {
 		System.out.println("start detectTill going to "+x+", "+y);
 		double currentX = odometer.getXYT()[0]; //get the current x position in cm
@@ -96,7 +110,6 @@ public class Traverse {
 		//calculate the moving distance and turning angle
 		double x1 = x*TILE_SIZE; //way point x coordinate in cm
 		double y1 = y*TILE_SIZE; //way point y coordinate in cm
-//		double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
 		double dAngle = Navigation.getDAngle(x1, y1, currentX, currentY); //get the angle to turn
 		Navigation.turnTo(dAngle, currentT, leftMotor, rightMotor); //turn the robot to the direction of the new way point
 		System.out.println("turn robot to direction of waypoint");
@@ -125,7 +138,6 @@ public class Traverse {
 	    		}
 	    	leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);  
 		    rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);	  
-		    //System.out.println("rotate wheels to go distance " + dDistance);
 			usDistanceR.fetchSample(usDataR, 0);
 			int distance = (int)(usDataR[0]*100.0);
 			System.out.println(distance);
@@ -149,7 +161,6 @@ public class Traverse {
 			}
 			//turn and approach if detected
 			if(ringCount >= 10) {
-				System.out.println("..........................detect Ring");
 				Sound.beep();
 				Sound.beep();
 				foundRing = true;
@@ -187,6 +198,12 @@ public class Traverse {
 		}
 	}
 	
+	/**
+	 * this method is used when the right ride sensor detects the ring and it will enter the searching area and search/idnetify the ring
+	 * @param x the x coordinate (in unit tile-length) of the corner we are traveling to 
+	 * @param y the y coordinate (in unit tile-length) of the corner we are traveling to 
+	 * @param odometer the odometer object used
+	 */
 	public static void detect(double x, double y, Odometer odometer) {
 		int detectCount = 0;
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
@@ -202,8 +219,8 @@ public class Traverse {
 		
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
-		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90-1), true);
-		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90-1), false);
+		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90), true);
+		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90), false);
 		//record the position for returning distance calculation 
 		double xRecord = odometer.getXYT()[0];
 		double yRecord = odometer.getXYT()[1];
@@ -229,9 +246,9 @@ public class Traverse {
 				detected = true;
 				break;
 			}
+			//fetch ultrasonic front readings.
 			usDistance.fetchSample(usData, 0);
 			int dis = (int)(usData[0] * 100.0);
-			//System.out.println(dis);
 			if(dis < Lab5.RING_BAND) {
 				detectCount++;
 			}
@@ -239,14 +256,9 @@ public class Traverse {
 				detectCount = 0;
 			}
 			if(detectCount >= 7) {
-				
-				Sound.beep();
-				Sound.beep();
-				Sound.beep();
 				leftMotor.stop(true);
 				rightMotor.stop(false);
 				for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-					//motor.stop();
 					motor.setAcceleration(3000);
 				}
 				try {

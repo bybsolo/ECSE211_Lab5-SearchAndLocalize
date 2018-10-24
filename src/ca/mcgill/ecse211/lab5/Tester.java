@@ -25,10 +25,14 @@ public class Tester {
 	public static final EV3LargeRegulatedMotor leftMotor = Lab5.leftMotor;
 	public static final EV3LargeRegulatedMotor rightMotor = Lab5.rightMotor;
 	
+	/**
+	 * this method is used for rgb reading collection for mean and std calculations 
+	 */
 	public static void sample() {
 		lcd.clear();
 		int counter =0;
-		while(counter<300) {
+		//run 100 samples
+		while(counte<100) {
 			myColorSample.fetchSample(sampleColor, 0); 
 			float r = sampleColor[0]*1000; 
 			float g = sampleColor[1]*1000; 
@@ -88,58 +92,45 @@ public class Tester {
 		rightMotor.rotate(-Navigation.convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, 360), false);
 	}
 	
+	/**
+	 * This method is used for ultrasonic (right side) reading collection (to understand the sensor performance)
+	 * @param odometer the odomter object used
+	 */
 	public static void usSample(Odometer odometer) {
 		System.out.println("start US sampling");
 		int ringCount = 0;
 		SampleProvider usDistanceR = Lab5.usDistanceR;
 		float[] usDataR = Lab5.usDataR;
-		// reset the motor
-//				for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-//					motor.stop();
-//					motor.setAcceleration(2000);
-//				}
-//				try {
-//					Thread.sleep(1000);
-//				} catch (InterruptedException e) {
-//					// There is nothing to be done here
-//				}
-				//move the robot forward until the Y asis is detected
-//				leftMotor.setSpeed(100);
-//				rightMotor.setSpeed(100);
-				boolean foundRing = false;
-				leftMotor.setSpeed(100);
-		    	rightMotor.setSpeed(100);
-			    while(foundRing == false) {
-//			    	double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
-//			    	leftMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, dDistance), true);  
-//				    rightMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, dDistance), true);	  
-//				    System.out.println("rotate wheels to go distance " + dDistance);
-			    	leftMotor.forward();
-			    	rightMotor.forward();
-					usDistanceR.fetchSample(usDataR, 0);
-					int distance = (int)(usDataR[0]*100.0);
-					System.out.println(distance);
-					if(distance < Lab5.DETECT_DISTANCE) {
-						ringCount++;
-					}
-					else {
-						ringCount = 0;
-					}
-					//turn and approach if detected
-					if(ringCount > 10) {
-						System.out.println("..........................detect Ring");
-						Sound.beep();
-						Sound.beep();
-						foundRing = true;
-						double currentY = odometer.getXYT()[1];
-						double correction = Lab5.TILE_SIZE - (currentY % Lab5.TILE_SIZE);
-						System.out.println("current Y is "+currentY);
-						System.out.println("correction is "+correction);
-						
-						leftMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, correction), true);  
-					    rightMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, correction), true);
-						//detect(x, y, odometer);
-					}
-				};
+
+		boolean foundRing = false;
+		leftMotor.setSpeed(100);
+		rightMotor.setSpeed(100);
+		while (foundRing == false) {
+			leftMotor.forward();
+			rightMotor.forward();
+			usDistanceR.fetchSample(usDataR, 0);
+			int distance = (int) (usDataR[0] * 100.0);
+			System.out.println(distance);
+			if (distance < Lab5.DETECT_DISTANCE) {
+				ringCount++;
+			} else {
+				ringCount = 0;
+			}
+			// turn and approach if detected
+			if (ringCount > 10) {
+				System.out.println("..........................detect Ring");
+				Sound.beep();
+				Sound.beep();
+				foundRing = true;
+				double currentY = odometer.getXYT()[1];
+				double correction = Lab5.TILE_SIZE - (currentY % Lab5.TILE_SIZE);
+				System.out.println("current Y is " + currentY);
+				System.out.println("correction is " + correction);
+
+				leftMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, correction), true);
+				rightMotor.rotate(Navigation.convertDistance(Lab5.WHEEL_RAD, correction), true);
+			}
+		}
+		;
 	}
 }

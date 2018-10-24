@@ -74,6 +74,12 @@ public class Lab5 {
 	public static SampleProvider usDistanceR = usSensorR.getMode("Distance"); // usDistance provides samples from
 	public static final float[] usDataR = new float[usDistanceR.sampleSize()];
 	
+	/**
+	 * This is the main method for the lab, it will prompt the user to choose which functionality to execute
+	 * in a menu, and initiates the threads needed for the lab
+	 * @param args
+	 * @throws OdometerExceptions
+	 */
 	public static void main(String[] args) throws OdometerExceptions{
 		final Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 		int buttonChoice;
@@ -128,6 +134,7 @@ public class Lab5 {
 				}).start();
 			}
 			if(testChoice==Button.ID_DOWN) {
+				//initiate ultrasonic sensor data collection
 				System.out.println("press down");
 				lcd.clear();
 				(new Thread() {

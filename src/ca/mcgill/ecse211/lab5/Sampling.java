@@ -11,7 +11,6 @@ import lejos.robotics.SampleProvider;
  * This method is used for sampling in line detection involved in light localization (using the light sensor)
  * it will run on its own thread and have a sample period of 10
  * @author Team12
- *
  */
 public class Sampling implements Runnable{
 	private static final long SAMPLE_PERIOD =12;

@@ -18,7 +18,6 @@ import lejos.robotics.SampleProvider;
  * 
  * @author Team12
  */
-
 public class LightLocalizer {
 	private static final int THRESHOLD = 300;
 	private static final double SAFE_DISTANCE = 5 ;

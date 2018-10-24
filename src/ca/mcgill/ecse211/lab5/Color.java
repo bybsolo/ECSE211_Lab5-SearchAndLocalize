@@ -62,7 +62,8 @@ public class Color {
 	private static SampleProvider usDistance = Lab5.usDistance;
 	private static final float[] usData = Lab5.usData;
 	
-	private static double smallest = 1;
+	private static double smallest = 1; //the max possible value for a normalized reading is 1
+	private static double colorThreshold  = 0.2; //all correct readings are smaller than thus thresold, obtained in the color sampling process
 	/**
 	 * calculates the euclidean distance in RGB space
 	 * @param rN normalized red reading
@@ -135,7 +136,7 @@ public class Color {
 		System.out.println(r +", "+g + ", "+b);
 		System.out.println(dBlue+ ", "+dGreen+ ", "+ dYellow+", "+ dOrange);
 		//return the TR value
-		if (smallest <= 0.2) {
+		if (smallest <= colorThreshold) {
 			if (smallest == dBlue)
 				return 1; // return blue
 			if (smallest == dGreen)
@@ -151,15 +152,12 @@ public class Color {
 		
 	}
 	
-	
+	/**
+	 * this method is used for the colro demo each sampling takes 5 seconds
+	 * @throws InterruptedException
+	 */
 	public static void colorDemo() throws InterruptedException {
-		///////this is the color demo class used for demo part 1/////////
-	    //this will be in a while loop 
-		//i forgot if its5
-		//just used the sonic sensor
-		//when its smaller than the BAND, call color()
-		//color() returns a int, compare it with 1 (blue) 2 (green) ....
-		//and display the color
+		//fetch front sonic sensor reading, if the sensor detect a ring then detect color (then  wait for 5 seconds)
 		usDistance.fetchSample(usData, 0);
 		int distance = (int)(usData[0]*100.0);
 		int count =0;

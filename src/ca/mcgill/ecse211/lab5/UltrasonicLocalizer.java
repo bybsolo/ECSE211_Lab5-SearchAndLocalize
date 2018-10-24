@@ -4,7 +4,7 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 /**
  * This class is used for localizing the robot using only ultrasonic sensor
- * @author Group 13
+ * @author team12
  */
 
 public class UltrasonicLocalizer {
