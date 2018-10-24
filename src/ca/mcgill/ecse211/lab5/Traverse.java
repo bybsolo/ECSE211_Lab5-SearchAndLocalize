@@ -331,4 +331,72 @@ public class Traverse {
 			rightMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90), false);
 		}
 	}
+	
+	/**
+	 * this additional method is used for searching the search area for the rings, when there are objects on along the perimeter
+	 * since we didnot implement any avoid mechanism, this will be used when there are ring places on the sides of the seach area
+	 * The implementation are similar to that of search() method.
+	 * we will simply travel in a bigger search area (half a tile size larger in case the corners are 1 tile away from the walls)
+	 * it is called in the main method, and will search for rings (including the target ring) while traversing half a tile-length away 
+	 * from the search area perimeter
+	 * @param leftMotor the left motor of the robot
+	 * @param rightMotor the right motor
+	 * @param odometer the odometer used the the robot
+	 */
+	public static void searchExtraHalf(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, Odometer odometer) {
+		//orient to the real 0 axis at the lower left corner 
+		//reset the motor
+		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
+			motor.stop();
+			motor.setAcceleration(2000);
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {}
+		leftMotor.setSpeed(ROTATE_SPEED);
+		rightMotor.setSpeed(ROTATE_SPEED);
+		
+		//update the odometer values based on the starting corner
+		if(Lab5.SC == 0 || Lab5.SC == 1) odometer.setXYT(Lab5.LLx*TILE_SIZE, Lab5.LLy*TILE_SIZE, 0);
+		if(Lab5.SC == 2 || Lab5.SC == 3) odometer.setXYT(Lab5.LLx*TILE_SIZE, Lab5.LLy*TILE_SIZE, 0);
+		
+		//move to HALF a block to the lower left of the lower-left corner
+		Navigation.travelTo(Lab5.LLx-0.5, Lab5.LLy-0.5, odometer, leftMotor, rightMotor);
+		//orient to the 0 axis
+		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, (0 - odometer.getXYT()[2])), true);
+		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, (0 - odometer.getXYT()[2])), false);
+
+		
+		//start traveling along a track that is half a tile-length away from the perimeter of the search area clockwise while detecting the objects	
+		foundTargetRing = false;
+		double[][] corners = {{Lab5.LLx-0.5, Lab5.URy+0.5},{Lab5.URx+0.5, Lab5.URy+0.5},{Lab5.URx+0.5, Lab5.LLy-0.5},{Lab5.LLx-0.5, Lab5.LLy-0.5}}; //these are the four corners
+		int i = 0;
+		//as long as the ring is not found, continue to the next corner and keep searching along the way
+		while(foundTargetRing ==false && i<4) {
+			detectTill(corners[i][0], corners[i][1], odometer);
+			System.out.println("reached corner");
+			i++;
+		}	
+		
+		//if the ring is found in the end/ the robot reached the end of the track half tile-length away from the perimeter, travel to the upper right corner
+		//first, travel a long the outter track till half a block away to the upper-right of the upper right corner 
+		// if the robot is on the upper or right side of the search area
+		double currentT = odometer.getXYT()[2];
+		if ((currentT >= 80 && currentT <= 100) || (currentT >= 170 && currentT <= 190)) {
+			Navigation.travelTo(Lab5.URx+0.5, Lab5.URy+0.5, odometer, leftMotor, rightMotor);
+		}
+		// if the robot is on the left side of the search area
+		if ((currentT >= 0 && currentT <= 10) || (currentT >= 350 && currentT <= 360)) {
+			Navigation.travelTo(Lab5.LLx-0.5, Lab5.URy+0.5, odometer, leftMotor, rightMotor);
+			Navigation.travelTo(Lab5.URx+0.5, Lab5.URy+0.5, odometer, leftMotor, rightMotor);
+		}
+		// if the robot is on the lower side of the search area
+		if ((currentT >= 260) && currentT <= 280) {
+			Navigation.travelTo(Lab5.URx+0.5, Lab5.LLy-0.5, odometer, leftMotor, rightMotor);
+			Navigation.travelTo(Lab5.URx+0.5, Lab5.URy+0.5, odometer, leftMotor, rightMotor);
+		}
+		//travel to the real upper-sight corner of the search area
+		Navigation.travelTo(Lab5.URx, Lab5.LLy, odometer, leftMotor, rightMotor);
+		Navigation.travelTo(Lab5.URx, Lab5.URy, odometer, leftMotor, rightMotor);
+	} 
 }
