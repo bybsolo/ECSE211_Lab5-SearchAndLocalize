@@ -25,11 +25,11 @@ public class Lab5 {
 	//These are the inputs, will be provided before the demo, re-enter them before running
 	//0,3,3,7,7 are defaults for report testing
 	public static final int SC = 0;
-	public static final int TR = 1;
+	public static final int TR = 2;
 	public static final double LLx = 2;		//left lower x
 	public static final double LLy = 2;		//left lower y
 	public static final double URx = 5;		//upper right x
-	public static final double URy = 5;		//upper right y
+	public static final double URy = 6;		//upper right y
 	public static final double usRange = 1.75;
 	// The parameters for driving the robot
 	public static final double OFF_SET = 14.65; //this is the offset from the back line-detecting light sensor to the wheelbase

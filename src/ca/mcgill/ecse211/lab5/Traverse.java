@@ -202,8 +202,8 @@ public class Traverse {
 		
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
-		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90-2), true);
-		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90-2), false);
+		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90-1), true);
+		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90-1), false);
 		//record the position for returning distance calculation 
 		double xRecord = odometer.getXYT()[0];
 		double yRecord = odometer.getXYT()[1];
@@ -243,10 +243,10 @@ public class Traverse {
 				Sound.beep();
 				Sound.beep();
 				Sound.beep();
-				//leftMotor.stop(true);
-				//rightMotor.stop(false);
+				leftMotor.stop(true);
+				rightMotor.stop(false);
 				for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-					motor.stop();
+					//motor.stop();
 					motor.setAcceleration(3000);
 				}
 				try {
@@ -287,8 +287,8 @@ public class Traverse {
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
 		disReturn = Math.sqrt(Math.pow((odometer.getXYT()[0]- xRecord), 2)+Math.pow((odometer.getXYT()[1]- yRecord), 2)); //this is how much it needs
-		leftMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn + 2), true);
-		rightMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn + 2), false);
+		leftMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn ), true);
+		rightMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn ), false);
 		
 		//call detectTill again, so it can keep detecting more rings (recursive)
 		if (foundTargetRing == false) {
@@ -300,8 +300,8 @@ public class Traverse {
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {}
-			leftMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90), true);
-			rightMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90), false);
+			leftMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 91), true);
+			rightMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 91), false);
 			// reset the motor
 			for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
 				motor.stop();
