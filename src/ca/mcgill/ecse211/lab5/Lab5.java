@@ -34,11 +34,11 @@ public class Lab5 {
 	// The parameters for driving the robot
 	public static final double OFF_SET = 14.65; //this is the offset from the back line-detecting light sensor to the wheelbase
 	public static final double OFF_SET_R = 4; //this is the offset from the right side ultrasonic sensor to the wheelbase
-	public static final int DETECT_SPEED = 50; //this is the slow speed for precious detection 
+	public static final int DETECT_SPEED = 40; //this is the slow speed for precious detection 
 	public static final int ROTATE_SPEED = 100;
 	public static final int MOVE_SPEED = 200; 
-	public static final double WHEEL_RAD = 2.1; 
-	public static final double TRACK = 14.4;
+	public static final double WHEEL_RAD = 2.085; 
+	public static final double TRACK = 14.2;
 	public static final double TILE_SIZE = 30.48;
 	public static final int DETECT_DISTANCE = (int)(usRange*TILE_SIZE); //detection bandcenter for the right side ultrasonic sensor /// ahmed: you can modify this 
 	public static final int RING_BAND = 20; //detection bandcenter for moving lose up to the ring for color identification 
@@ -165,17 +165,31 @@ public class Lab5 {
 				public void run() {
 					//The following are the routine performed for search and localize
 					//perform the localization routine
-					//UltrasonicLocalizer.risingEdge(usDistance, usData, odometer, leftMotor, rightMotor);
-//					try {
-//						System.out.println("....................light localization");
-//						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
-//					} catch (OdometerExceptions e) {
-//						e.printStackTrace();
-//					}	
+					UltrasonicLocalizer.risingEdge(usDistance, usData, odometer, leftMotor, rightMotor);
+					try {
+						System.out.println("....................light localization");
+						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
+					} catch (OdometerExceptions e) {
+						e.printStackTrace();
+					}	
 					//navigate to the lower left corner of the search area
-					//odometer.setXYT(TILE_SIZE, TILE_SIZE, 0.0); ///delete this later AHHHHHHHH
+					
+					
+					
+					leftMotor.stop(true);
+					rightMotor.stop(false);
+					for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
+					      motor.setAcceleration(3000);
+					    }
+					try {
+				      Thread.sleep(1000);
+				    } catch (InterruptedException e) {}
+				    
+				    //move the robot to the way point
+				    
 					Navigation.travelTo(Lab5.LLx, odometer.getXYT()[1]/TILE_SIZE, odometer, leftMotor, rightMotor); //travel to takes integer coordinates as doubles 
 					Navigation.travelTo(Lab5.LLx, Lab5.LLy, odometer, leftMotor, rightMotor);
+					
 					Sound.beep();
 					System.out.println("......................start search");
 					Traverse.search(leftMotor, rightMotor, odometer);

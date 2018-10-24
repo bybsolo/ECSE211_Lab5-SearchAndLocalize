@@ -56,8 +56,9 @@ public class Navigation {
 		
 		//move the robot towards the new way point
 		//reset the motor
+		leftMotor.stop(true);
+		rightMotor.stop(false);
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
-		      motor.stop();
 		      motor.setAcceleration(3000);
 		    }
 	    try {
@@ -82,8 +83,9 @@ public class Navigation {
 	 */
 	public static void turnTo (double dAngle, double currentT, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor ) {
 		//reset the motor
+		leftMotor.stop(true);
+		rightMotor.stop(false);
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
-		      motor.stop();
 		      motor.setAcceleration(2000);
 		    }
 	    try {
@@ -96,6 +98,13 @@ public class Navigation {
 	    double angle1 = dAngle - currentT;
 	    double angle2 = (angle1>=0 ? -(360-(Math.abs(angle1))) : (360-(Math.abs(angle1))));
 	    double angle = (Math.abs(angle1) < Math.abs(angle2) ? angle1 : angle2); 
+	    
+//	    if(angle>=80 && angle<=100) angle = 90;
+//	    if(angle>=-10 && angle<=10) angle = 0;
+//	    if(angle>=170 && angle<=190) angle = 180;
+//	    if(angle>=-100 && angle<=-80) angle = -90;
+//	    if(angle>=-190 && angle<=-170) angle = -180;
+//	    if(angle>=350 && angle<=361) angle = 0;
 	    
 	    //start the motors and make the turn
 	    leftMotor.setSpeed(ROTATE_SPEED);

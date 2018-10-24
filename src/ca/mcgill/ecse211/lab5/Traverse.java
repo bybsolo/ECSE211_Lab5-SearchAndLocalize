@@ -50,6 +50,10 @@ public class Traverse {
 		} catch (InterruptedException e) {}
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
+		
+		if(Lab5.SC == 0 || Lab5.SC == 1) odometer.setXYT(Lab5.LLx*TILE_SIZE, Lab5.LLy*TILE_SIZE, 0);
+		if(Lab5.SC == 2 || Lab5.SC == 3) odometer.setXYT(Lab5.LLx*TILE_SIZE, Lab5.LLy*TILE_SIZE, 0);
+
 		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, (0 - odometer.getXYT()[2])), true);
 		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, (0 - odometer.getXYT()[2])), false);
 		
@@ -144,7 +148,7 @@ public class Traverse {
 				ringCount = 0;
 			}
 			//turn and approach if detected
-			if(ringCount > 10) {
+			if(ringCount >= 10) {
 				System.out.println("..........................detect Ring");
 				Sound.beep();
 				Sound.beep();
@@ -192,19 +196,24 @@ public class Traverse {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {}
-		leftMotor.setSpeed(ROTATE_SPEED);
-		rightMotor.setSpeed(ROTATE_SPEED);
-		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90), true);
-		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90), false);
 		
 		//record the odometer x y values at this found so we can return to it later 
+
+		
+		leftMotor.setSpeed(ROTATE_SPEED);
+		rightMotor.setSpeed(ROTATE_SPEED);
+		leftMotor.rotate(Navigation.convertAngle(WHEEL_RAD, TRACK, 90-2), true);
+		rightMotor.rotate(-Navigation.convertAngle(WHEEL_RAD, TRACK, 90-2), false);
+		//record the position for returning distance calculation 
 		double xRecord = odometer.getXYT()[0];
 		double yRecord = odometer.getXYT()[1];
 		double disReturn;
+		
 		//and slowly moves forward
 		// reset the motor
+		leftMotor.stop(true);
+		rightMotor.stop(false);
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-			motor.stop();
 			motor.setAcceleration(3000);
 		}
 		try {
@@ -220,8 +229,6 @@ public class Traverse {
 				detected = true;
 				break;
 			}
-			leftMotor.forward();
-			rightMotor.forward();
 			usDistance.fetchSample(usData, 0);
 			int dis = (int)(usData[0] * 100.0);
 			//System.out.println(dis);
@@ -236,10 +243,10 @@ public class Traverse {
 				Sound.beep();
 				Sound.beep();
 				Sound.beep();
-				leftMotor.stop(true);
-				rightMotor.stop(false);
+				//leftMotor.stop(true);
+				//rightMotor.stop(false);
 				for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-					//motor.stop();
+					motor.stop();
 					motor.setAcceleration(3000);
 				}
 				try {
@@ -263,12 +270,15 @@ public class Traverse {
 				}
 				else Sound.beep();
 			}
+			leftMotor.forward();
+			rightMotor.forward();
 		}
 		
 		//back off to the perimeter (where the robot was before turning entering the search field)
 		// reset the motor
+		leftMotor.stop(true);
+		rightMotor.stop(false);
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-			motor.stop();
 			motor.setAcceleration(3000);
 		}
 		try {
@@ -277,8 +287,8 @@ public class Traverse {
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
 		disReturn = Math.sqrt(Math.pow((odometer.getXYT()[0]- xRecord), 2)+Math.pow((odometer.getXYT()[1]- yRecord), 2)); //this is how much it needs
-		leftMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn), true);
-		rightMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn), false);
+		leftMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn + 2), true);
+		rightMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn + 2), false);
 		
 		//call detectTill again, so it can keep detecting more rings (recursive)
 		if (foundTargetRing == false) {
@@ -300,8 +310,8 @@ public class Traverse {
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {}
-			leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, TILE_SIZE - 5), true);
-			rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, TILE_SIZE - 5), false);
+			leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, TILE_SIZE - 8), true);
+			rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, TILE_SIZE - 8), false);
 			detectTill(x, y, odometer);
 		}		
 		else {

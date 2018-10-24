@@ -15,7 +15,7 @@ import lejos.robotics.SampleProvider;
  */
 public class Sampling implements Runnable{
 	private static final long SAMPLE_PERIOD =12;
-	private static final int THRESHOLD = 400;
+	private static final int THRESHOLD = 300;
 	private Odometer odometer;
 	public double[] odoReading = new double[4];
 	
