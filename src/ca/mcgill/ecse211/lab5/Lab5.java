@@ -26,10 +26,10 @@ public class Lab5 {
 	//0,3,3,7,7 are defaults for report testing
 	public static final int SC = 0;
 	public static final int TR = 1;
-	public static final double LLx = 3;		//left lower x
-	public static final double LLy = 3;		//left lower y
-	public static final double URx = 7;		//upper right x
-	public static final double URy = 7;		//upper right y
+	public static final double LLx = 2;		//left lower x
+	public static final double LLy = 2;		//left lower y
+	public static final double URx = 5;		//upper right x
+	public static final double URy = 5;		//upper right y
 	public static final double usRange = 1.75;
 	// The parameters for driving the robot
 	public static final double OFF_SET = 14.65; //this is the offset from the back line-detecting light sensor to the wheelbase
@@ -38,7 +38,7 @@ public class Lab5 {
 	public static final int ROTATE_SPEED = 100;
 	public static final int MOVE_SPEED = 200; 
 	public static final double WHEEL_RAD = 2.1; 
-	public static final double TRACK = 14.5;
+	public static final double TRACK = 14.4;
 	public static final double TILE_SIZE = 30.48;
 	public static final int DETECT_DISTANCE = (int)(usRange*TILE_SIZE); //detection bandcenter for the right side ultrasonic sensor /// ahmed: you can modify this 
 	public static final int RING_BAND = 20; //detection bandcenter for moving lose up to the ring for color identification 
@@ -166,12 +166,12 @@ public class Lab5 {
 					//The following are the routine performed for search and localize
 					//perform the localization routine
 					//UltrasonicLocalizer.risingEdge(usDistance, usData, odometer, leftMotor, rightMotor);
-					try {
-						System.out.println("....................light localization");
-						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
-					} catch (OdometerExceptions e) {
-						e.printStackTrace();
-					}	
+//					try {
+//						System.out.println("....................light localization");
+//						LightLocalizer.lightLocalize(odometer, leftMotor, rightMotor);
+//					} catch (OdometerExceptions e) {
+//						e.printStackTrace();
+//					}	
 					//navigate to the lower left corner of the search area
 					//odometer.setXYT(TILE_SIZE, TILE_SIZE, 0.0); ///delete this later AHHHHHHHH
 					Navigation.travelTo(Lab5.LLx, odometer.getXYT()[1]/TILE_SIZE, odometer, leftMotor, rightMotor); //travel to takes integer coordinates as doubles 

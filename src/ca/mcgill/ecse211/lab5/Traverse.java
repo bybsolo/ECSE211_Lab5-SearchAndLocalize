@@ -84,7 +84,7 @@ public class Traverse {
 	} 
 	
 	public static void detectTill(double x, double y, Odometer odometer) {
-		System.out.println("start detectTill");
+		System.out.println("start detectTill going to "+x+", "+y);
 		double currentX = odometer.getXYT()[0]; //get the current x position in cm
 		double currentY = odometer.getXYT()[1]; //get the current y position in cm
 		double currentT = odometer.getXYT()[2]; //get the current direction in degrees
@@ -97,9 +97,9 @@ public class Traverse {
 		Navigation.turnTo(dAngle, currentT, leftMotor, rightMotor); //turn the robot to the direction of the new way point
 		System.out.println("turn robot to direction of waypoint");
 		//reset the motor
-
+		leftMotor.stop(true);
+		rightMotor.stop(false);
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
-		      motor.stop();
 		      motor.setAcceleration(3000);
 		    }
 		try {
@@ -110,19 +110,33 @@ public class Traverse {
 	    leftMotor.setSpeed(ROTATE_SPEED);
 	    rightMotor.setSpeed(ROTATE_SPEED);
 	    System.out.println("set speed to " + ROTATE_SPEED);
-	    
-//	    leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);  
-//	    rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);	  
-//	    System.out.println("rotate wheels to go distance " + dDistance);
+	  
 	    boolean foundRing = false;
 	    while(foundRing == false) {
+	    	currentX = odometer.getXYT()[0];
+	    	currentY = odometer.getXYT()[1];
 	    	double dDistance = Math.sqrt(Math.pow((x1 - currentX), 2) + Math.pow((y1 - currentY), 2));
+	    	if (dDistance <= 2) {
+	    		break;
+	    		}
 	    	leftMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);  
 		    rightMotor.rotate(Navigation.convertDistance(WHEEL_RAD, dDistance), true);	  
 		    //System.out.println("rotate wheels to go distance " + dDistance);
 			usDistanceR.fetchSample(usDataR, 0);
 			int distance = (int)(usDataR[0]*100.0);
 			System.out.println(distance);
+			double xPos = odometer.getXYT()[0];
+			double yPos = odometer.getXYT()[1];
+			if( (Math.abs(xPos - x ) <= 0.2) && (Math.abs(yPos - y) <= 1 )
+				
+			||( (Math.abs(yPos - y) <= 0.2) && (Math.abs(xPos - x) <= 1 ) ) 
+			) {
+				System.out.println("skip reading");
+				Sound.beep();
+;				continue;
+				
+			}
+			
 			if(distance < DETECT_DISTANCE) {
 				ringCount++;
 			}
@@ -139,6 +153,7 @@ public class Traverse {
 				currentY= odometer.getXYT()[1];
 				currentT = odometer.getXYT()[2];
 				System.out.println("current Y is " + odometer.getXYT()[1]);
+				System.out.println("current X is " + odometer.getXYT()[0]);
 				System.out.println("angle is " + odometer.getXYT()[2]);
 				//going up
 				if ((currentT >= 0 && currentT <= 10) ||(currentT >= 350 && currentT <= 360) ) {
@@ -169,7 +184,7 @@ public class Traverse {
 	}
 	
 	public static void detect(double x, double y, Odometer odometer) {
-
+		int detectCount = 0;
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
 			motor.stop();
 			motor.setAcceleration(3000);
@@ -185,7 +200,7 @@ public class Traverse {
 		//record the odometer x y values at this found so we can return to it later 
 		double xRecord = odometer.getXYT()[0];
 		double yRecord = odometer.getXYT()[1];
-		
+		double disReturn;
 		//and slowly moves forward
 		// reset the motor
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
@@ -199,17 +214,32 @@ public class Traverse {
 		rightMotor.setSpeed(ROTATE_SPEED);
 		boolean detected = false;
 		while(detected == false) {
+			disReturn = Math.sqrt(Math.pow((odometer.getXYT()[0]- xRecord), 2)+Math.pow((odometer.getXYT()[1]- yRecord), 2));
+			if(disReturn > TILE_SIZE *2) {
+				System.out.println("false detection go back");
+				detected = true;
+				break;
+			}
 			leftMotor.forward();
 			rightMotor.forward();
 			usDistance.fetchSample(usData, 0);
 			int dis = (int)(usData[0] * 100.0);
-			System.out.println(dis);
+			//System.out.println(dis);
 			if(dis < Lab5.RING_BAND) {
+				detectCount++;
+			}
+			else {
+				detectCount = 0;
+			}
+			if(detectCount >= 7) {
+				
 				Sound.beep();
 				Sound.beep();
 				Sound.beep();
+				leftMotor.stop(true);
+				rightMotor.stop(false);
 				for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-					motor.stop();
+					//motor.stop();
 					motor.setAcceleration(3000);
 				}
 				try {
@@ -226,7 +256,12 @@ public class Traverse {
 					Sound.beep();
 					Sound.beep();
 					foundTargetRing = true; //we have found the ring! this boolean will now terminated the biggest while loop in search()
-				} else Sound.beep();
+				} 
+				else if(color == 0) {
+					System.out.println("failed to identify");
+					detected = false;
+				}
+				else Sound.beep();
 			}
 		}
 		
@@ -241,7 +276,7 @@ public class Traverse {
 		} catch (InterruptedException e) {}
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
-		double disReturn = Math.sqrt(Math.pow((odometer.getXYT()[0]- xRecord), 2)+Math.pow((odometer.getXYT()[1]- yRecord), 2)); //this is how much it needs
+		disReturn = Math.sqrt(Math.pow((odometer.getXYT()[0]- xRecord), 2)+Math.pow((odometer.getXYT()[1]- yRecord), 2)); //this is how much it needs
 		leftMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn), true);
 		rightMotor.rotate(-Navigation.convertDistance(WHEEL_RAD, disReturn), false);
 		

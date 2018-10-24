@@ -61,6 +61,8 @@ public class Color {
 																				// readings
 	private static SampleProvider usDistance = Lab5.usDistance;
 	private static final float[] usData = Lab5.usData;
+	
+	private static double smallest = 1;
 	/**
 	 * calculates the euclidean distance in RGB space
 	 * @param rN normalized red reading
@@ -126,7 +128,6 @@ public class Color {
 		
 		//rank the distances and choose the color --smallest euclidean
 		double[] d = {dBlue, dGreen, dYellow, dOrange};
-		double smallest = 10;
 		for (int i= 0; i<4; i++) {
 			if(i==0) smallest=d[i];
 			else if(d[i] < smallest) smallest = d[i];
@@ -134,11 +135,19 @@ public class Color {
 		System.out.println(r +", "+g + ", "+b);
 		System.out.println(dBlue+ ", "+dGreen+ ", "+ dYellow+", "+ dOrange);
 		//return the TR value
-		if(smallest == dBlue) return 1; //return blue
-		if(smallest == dGreen) return 2; //return green
-		if(smallest == dYellow) return 3; //return yellow
-		if(smallest == dOrange) return 4; //return orange
-		else return 0;
+		if (smallest <= 0.2) {
+			if (smallest == dBlue)
+				return 1; // return blue
+			if (smallest == dGreen)
+				return 2; // return green
+			if (smallest == dYellow)
+				return 3; // return yellow
+			if (smallest == dOrange)
+				return 4; // return orange
+			else
+				return 0;
+		} else
+			return 0;
 		
 	}
 	
@@ -157,10 +166,10 @@ public class Color {
 		while(count<5 && distance < 10) {
 			int color = Color.color();
 			Sound.beep();
-			if (color == 1) System.out.println("blue");
-			if (color == 2) System.out.println("green");
-			if (color == 3) System.out.println("yellow");
-			if (color == 4) System.out.println("orange");
+			if (color == 1) System.out.println("blue" + smallest);
+			if (color == 2) System.out.println("green" + smallest);
+			if (color == 3) System.out.println("yellow" + smallest);
+			if (color == 4) System.out.println("orange" + smallest);
 			count++;
 			TimeUnit.SECONDS.sleep(5);
 		}
