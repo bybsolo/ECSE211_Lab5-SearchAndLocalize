@@ -32,7 +32,7 @@ public class Tester {
 		lcd.clear();
 		int counter =0;
 		//run 100 samples
-		while(counte<100) {
+		while(counter<100) {
 			myColorSample.fetchSample(sampleColor, 0); 
 			float r = sampleColor[0]*1000; 
 			float g = sampleColor[1]*1000; 
